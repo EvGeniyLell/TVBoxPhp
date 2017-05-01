@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Titles Search</title>
+    <style>
+        #results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; min-height: 50px; }
+        .item { border: 1px solid #ccc; padding: 10px; }
+        /* UX styles */
+        #loading, #no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-top: 1em;
+        }
+    </style>
+</head>
+<body>
+<label for="search">Search Titles</label><input type="search" id="search" placeholder="Search...">
+<button id="searchBtn">Search</button>
+<div id="results"></div>
+<script>
+    const resultsEl = document.getElementById('results');
+    const searchEl = document.getElementById('search');
+    const searchBtn = document.getElementById('searchBtn');
+    let debounceTimeout;
+
+    function showLoading() {
+        resultsEl.innerHTML = `<div id="loading">Loading...</div>`;
+    }
+
+    function showNoResults() {
+        resultsEl.innerHTML = `<div id="no-results">No results found</div>`;
+    }
+
+    function renderResults(html) {
+        if (!html || !html.trim()) {
+            showNoResults();
+        } else {
+            resultsEl.innerHTML = html;
+        }
+    }
+
+    async function doSearch() {
+        const value = searchEl.value.trim();
+        if (value.length < 3) {
+            resultsEl.innerHTML = '';
+            return;
+        }
+        showLoading();
+        try {
+            const res = await fetch(`./API/search.php?q=${encodeURIComponent(value)}`);
+            const html = await res.text();
+            renderResults(html);
+        } catch (err) {
+            resultsEl.innerHTML = `<div id="no-results">An error occurred during the search</div>`;
+        }
+    }
+
+    searchBtn.addEventListener('click', doSearch);
+
+    searchEl.addEventListener('input', function () {
+        if (debounceTimeout) clearTimeout(debounceTimeout);
+        if (this.value.trim().length < 3) {
+            resultsEl.innerHTML = '';
+            return;
+        }
+        showLoading();
+        debounceTimeout = setTimeout(doSearch, 10000);
+    });
+</script>
+</body>
+</html>
