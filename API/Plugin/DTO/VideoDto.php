@@ -2,8 +2,8 @@
 
 declare (strict_types = 1);
 
-require_once 'API/Plugin/DTO/BaseDto.php';
-require_once 'API/BO/Video.php';
+require_once __DIR__ . '/BaseDto.php';
+require_once __DIR__ . '/../../BO/Video.php';
 
 /**
  * Data Transfer Object for Video

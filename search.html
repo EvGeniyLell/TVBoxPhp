@@ -2,88 +2,120 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Titles Search</title>
-    <style>
-        #results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; min-height: 50px; }
-        .item { border: 1px solid #ccc; padding: 10px; }
-        /* UX styles */
-        #loading, #no-results {
-            grid-column: 1 / -1;
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            margin-top: 1em;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<label for="search">Search Titles</label><input type="search" id="search" placeholder="Search...">
-<button id="searchBtn">Search</button>
-<div id="results"></div>
-<script>
-    const resultsEl = document.getElementById('results');
-    const searchEl = document.getElementById('search');
-    const searchBtn = document.getElementById('searchBtn');
-    let debounceTimeout;
+    <div class="search-container">
+        <h1>Search Movies & Series</h1>
+        <div class="search-box">
+            <input type="search" id="search" placeholder="Search for movies or TV series...">
+            <button id="searchBtn">Search</button>
+        </div>
+    </div>
+    
+    <div id="results"></div>
 
-    function showLoading() {
-        resultsEl.innerHTML = `<div id="loading">Loading...</div>`;
-    }
+    <script>
+        const resultsEl = document.getElementById('results');
+        const searchEl = document.getElementById('search');
+        const searchBtn = document.getElementById('searchBtn');
+        let debounceTimeout;
 
-    function showNoResults() {
-        resultsEl.innerHTML = `<div id="no-results">No results found</div>`;
-    }
-
-    function renderResults(data) {
-        if (!data || data.length === 0) {
-            showNoResults();
-            return;
+        function showLoading() {
+            resultsEl.innerHTML = `<div id="loading">Loading...</div>`;
         }
-        
-        const html = data.map(item => `
-            <div class="item">
-                <h3>${item.title || 'Untitled'}</h3>
-                ${item.year ? `<p>Year: ${item.year}</p>` : ''}
-                ${item.posterUrl ? `<img src="${item.posterUrl}" alt="${item.title}" style="max-width: 100%;">` : ''}
-                ${item.description ? `<p>${item.description}</p>` : ''}
-            </div>
-        `).join('');
-        
-        resultsEl.innerHTML = html;
-    }
 
-    async function doSearch() {
-        const value = searchEl.value.trim();
-        if (value.length < 3) {
-            resultsEl.innerHTML = '';
-            return;
+        function showNoResults() {
+            resultsEl.innerHTML = `<div id="no-results">No results found</div>`;
         }
-        showLoading();
-        try {
-            const res = await fetch(`./API/search.php?q=${encodeURIComponent(value)}`);
-            const json = await res.json();
-            
-            if (json.success) {
-                renderResults(json.data);
-            } else {
-                resultsEl.innerHTML = `<div id="no-results">${json.error || 'An error occurred'}</div>`;
+
+        function renderResults(data) {
+            if (!data || data.length === 0) {
+                showNoResults();
+                return;
             }
-        } catch (err) {
-            resultsEl.innerHTML = `<div id="no-results">An error occurred during the search</div>`;
-        }
-    }
 
-    searchBtn.addEventListener('click', doSearch);
+            const html = data.map(item => `
+                <div class="item">
+                    <div class="item-poster">
+                        ${item.posterUrl ? 
+                            `<img src="${item.posterUrl}" alt="${item.title}" loading="lazy">` : 
+                            '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;">No Image</div>'
+                        }
+                    </div>
+                    <div class="item-content">
+                        <div class="item-title">${item.title || 'Untitled'}</div>
+                        ${item.year ? `<div class="item-year">${item.year}</div>` : ''}
+                        ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
+                        ${item.genres && item.genres.length > 0 ? `
+                            <div class="item-genres">
+                                ${item.genres.map(genre => `<span class="genre-tag">${genre}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
 
-    searchEl.addEventListener('input', function () {
-        if (debounceTimeout) clearTimeout(debounceTimeout);
-        if (this.value.trim().length < 3) {
-            resultsEl.innerHTML = '';
-            return;
+            resultsEl.innerHTML = html;
         }
-        showLoading();
-        debounceTimeout = setTimeout(doSearch, 10000);
-    });
-</script>
+
+        async function doSearch() {
+            // Cancel any pending debounced search
+            if (debounceTimeout) {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = null;
+            }
+
+            const value = searchEl.value.trim();
+            if (value.length < 3) {
+                resultsEl.innerHTML = '';
+                return;
+            }
+
+            showLoading();
+            try {
+                const res = await fetch(`./API/search.php?q=${encodeURIComponent(value)}`);
+
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await res.text();
+                    console.error('Server returned HTML instead of JSON:', text);
+                    resultsEl.innerHTML = `<div id="no-results">Server error. Check console for details.</div>`;
+                    return;
+                }
+
+                const json = await res.json();
+
+                if (json.success) {
+                    renderResults(json.data);
+                } else {
+                    resultsEl.innerHTML = `<div id="no-results">${json.error || 'An error occurred'}</div>`;
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                resultsEl.innerHTML = `<div id="no-results">An error occurred during the search.</div>`;
+            }
+        }
+
+        searchBtn.addEventListener('click', doSearch);
+
+        searchEl.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                doSearch();
+            }
+        });
+
+        searchEl.addEventListener('input', function () {
+            if (debounceTimeout) clearTimeout(debounceTimeout);
+            if (this.value.trim().length < 3) {
+                resultsEl.innerHTML = '';
+                return;
+            }
+            showLoading();
+            debounceTimeout = setTimeout(doSearch, 500);
+        });
+    </script>
 </body>
 </html>
