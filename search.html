@@ -61,6 +61,16 @@
         showLoading();
         try {
             const res = await fetch(`./API/search.php?q=${encodeURIComponent(value)}`);
+            
+            // Check if response is HTML (error page) instead of JSON
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await res.text();
+                console.error('Server returned HTML instead of JSON:', text);
+                resultsEl.innerHTML = `<div id="no-results">Server error (503). Check console for details.</div>`;
+                return;
+            }
+            
             const json = await res.json();
             
             if (json.success) {
@@ -69,7 +79,8 @@
                 resultsEl.innerHTML = `<div id="no-results">${json.error || 'An error occurred'}</div>`;
             }
         } catch (err) {
-            resultsEl.innerHTML = `<div id="no-results">An error occurred during the search</div>`;
+            console.error('Fetch error:', err);
+            resultsEl.innerHTML = `<div id="no-results">An error occurred during the search. Check console for details.</div>`;
         }
     }
 

@@ -2,7 +2,7 @@
 
 declare (strict_types = 1);
 
-require_once 'API/BO/BaseBo.php';
+require_once __DIR__ . '/BaseBo.php';
 
 /**
  * Represents an episode of a series

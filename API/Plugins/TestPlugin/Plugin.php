@@ -1,11 +1,13 @@
 <?php
 
-require_once 'API/Plugin/DTO/TitleUnitDto.php';
-require_once 'API/Plugin/DTO/EpisodeDto.php';
-require_once 'API/Plugin/DTO/SeasonDto.php';
-require_once 'API/Plugin/DTO/VideoDto.php';
-require_once 'API/Plugin/DTO/PluginInfoDto.php';
-require_once 'API/Plugin/Plugin.php';
+declare (strict_types = 1);
+
+require_once __DIR__ . '/../../Plugin/Plugin.php';
+require_once __DIR__ . '/../../Plugin/DTO/PluginInfoDto.php';
+require_once __DIR__ . '/../../Plugin/DTO/TitleUnitDto.php';
+require_once __DIR__ . '/../../Plugin/DTO/EpisodeDto.php';
+require_once __DIR__ . '/../../Plugin/DTO/SeasonDto.php';
+require_once __DIR__ . '/../../Plugin/DTO/VideoDto.php';
 
 class TestPlugin extends Plugin
 {
