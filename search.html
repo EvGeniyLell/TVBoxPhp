@@ -14,7 +14,7 @@
             <button id="searchBtn">Search</button>
         </div>
     </div>
-    
+
     <div id="results"></div>
 
     <script>
@@ -40,8 +40,8 @@
             const html = data.map(item => `
                 <div class="item">
                     <div class="item-poster">
-                        ${item.posterUrl ? 
-                            `<img src="${item.posterUrl}" alt="${item.title}" loading="lazy">` : 
+                        ${item.posterUrl ?
+                            `<img src="${item.posterUrl}" alt="${item.title}" loading="lazy">` :
                             '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;">No Image</div>'
                         }
                     </div>
