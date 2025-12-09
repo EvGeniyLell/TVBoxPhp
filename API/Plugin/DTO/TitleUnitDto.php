@@ -1,15 +1,44 @@
 <?php
-require_once 'api/plugin/dto/BaseDto.php';
-require_once 'api/bo/Movie.php';
-require_once 'api/bo/Series.php';
 
+declare (strict_types = 1);
+
+require_once 'API/Plugin/DTO/BaseDto.php';
+require_once 'API/BO/TitleUnit.php';
+
+/**
+ * Base Data Transfer Object for title types (Movie/Series)
+ */
 abstract class TitleUnitDto extends BaseDto
 {
+    /**
+     * Title name
+     * @var string
+     */
     public string $title;
+
+    /**
+     * Release year
+     * @var int|null
+     */
     public ?int $year;
+
+    /**
+     * URL to poster image
+     * @var string|null
+     */
     public ?string $posterUrl;
+
+    /**
+     * Title description
+     * @var string|null
+     */
     public ?string $description;
-    public ?array $genres; // @array of string
+
+    /**
+     * List of genre names
+     * @var array|null Array of strings
+     */
+    public ?array $genres;
 
     public function __construct(
         string $title,
@@ -33,7 +62,7 @@ abstract class TitleUnitDto extends BaseDto
 }
 
 /**
- * @extends TitleUnitDto<Movie>
+ * Data Transfer Object for Movie
  */
 class MovieDto extends TitleUnitDto
 {
@@ -48,6 +77,11 @@ class MovieDto extends TitleUnitDto
         parent::__construct($title, $year, $posterUrl, $description, $genres, $pluginData);
     }
 
+    /**
+     * Create DTO from Movie Business Object
+     * @param object $bo Movie business object
+     * @return self
+     */
     public static function fromBo(object $bo): self
     {
         if (! $bo instanceof Movie) {
@@ -63,6 +97,11 @@ class MovieDto extends TitleUnitDto
         );
     }
 
+    /**
+     * Convert DTO to Movie Business Object
+     * @param string $pluginUid Plugin unique identifier
+     * @return Movie
+     */
     public function toBo(string $pluginUid): Movie
     {
         return new Movie(
@@ -78,7 +117,7 @@ class MovieDto extends TitleUnitDto
 }
 
 /**
- * @extends TitleUnitDto<Series>
+ * Data Transfer Object for Series
  */
 class SeriesDto extends TitleUnitDto
 {
@@ -93,6 +132,11 @@ class SeriesDto extends TitleUnitDto
         parent::__construct($title, $year, $posterUrl, $description, $genres, $pluginData);
     }
 
+    /**
+     * Create DTO from Series Business Object
+     * @param object $bo Series business object
+     * @return self
+     */
     public static function fromBo(object $bo): self
     {
         if (! $bo instanceof Series) {
@@ -108,6 +152,11 @@ class SeriesDto extends TitleUnitDto
         );
     }
 
+    /**
+     * Convert DTO to Series Business Object
+     * @param string $pluginUid Plugin unique identifier
+     * @return Series
+     */
     public function toBo(string $pluginUid): Series
     {
         return new Series(

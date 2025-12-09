@@ -1,16 +1,43 @@
 <?php
-require_once __DIR__ . '/BaseBo.php';
+
+declare (strict_types = 1);
+
+require_once 'API/BO/BaseBo.php';
 
 /**
  * Represents a title type, which can be either a Movie or Series.
  */
 abstract class TitleUnit extends BaseBo
 {
+    /**
+     * Title name
+     * @var string
+     */
     public string $title;
+
+    /**
+     * Release year
+     * @var int|null
+     */
     public ?int $year;
+
+    /**
+     * URL to poster image
+     * @var string|null
+     */
     public ?string $posterUrl;
+
+    /**
+     * Title description
+     * @var string|null
+     */
     public ?string $description;
-    public ?array $genres; // @array of string
+
+    /**
+     * List of genre names
+     * @var array|null Array of strings
+     */
+    public ?array $genres;
 
     public function __construct(
         string $pluginUid,
@@ -31,9 +58,8 @@ abstract class TitleUnit extends BaseBo
 }
 
 /**
- * Represents an movie
+ * Represents a movie
  * can be associated with videos.
- * @extends TitleUnit<Movie>
  */
 class Movie extends TitleUnit
 {
@@ -51,9 +77,8 @@ class Movie extends TitleUnit
 }
 
 /**
- * Represents an series
+ * Represents a series
  * can be associated with seasons.
- * @extends TitleUnit<Series>
  */
 class Series extends TitleUnit
 {

@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/BaseBo.php';
+
+declare (strict_types = 1);
+
+require_once 'API/BO/BaseBo.php';
 
 /**
  * Represents an episode of a series
@@ -7,9 +10,28 @@ require_once __DIR__ . '/BaseBo.php';
  */
 class Episode extends BaseBo
 {
+    /**
+     * Episode title
+     * @var string
+     */
     public string $title;
+
+    /**
+     * Release year
+     * @var int|null
+     */
     public ?int $year;
+
+    /**
+     * URL to episode poster image
+     * @var string|null
+     */
     public ?string $posterUrl;
+
+    /**
+     * Episode description
+     * @var string|null
+     */
     public ?string $description;
 
     public function __construct(

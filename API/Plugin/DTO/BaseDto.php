@@ -1,8 +1,9 @@
 <?php
 
+declare (strict_types = 1);
+
 /**
- * Base Plugin Data Object
- * Base Data Transfer Object
+ * Base Data Transfer Object for plugin communication
  */
 abstract class BaseDto
 {
@@ -19,13 +20,15 @@ abstract class BaseDto
 
     /**
      * Create DTO from Business Object
+     * @param object $bo Business object to convert
      * @return static
      */
     abstract public static function fromBo(object $bo): self;
 
     /**
      * Convert DTO to Business Object
-     * @return object
+     * @param string $pluginUid Plugin unique identifier
+     * @return object Business object instance
      */
     abstract public function toBo(string $pluginUid): object;
 }

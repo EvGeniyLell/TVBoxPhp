@@ -34,12 +34,22 @@
         resultsEl.innerHTML = `<div id="no-results">No results found</div>`;
     }
 
-    function renderResults(html) {
-        if (!html || !html.trim()) {
+    function renderResults(data) {
+        if (!data || data.length === 0) {
             showNoResults();
-        } else {
-            resultsEl.innerHTML = html;
+            return;
         }
+        
+        const html = data.map(item => `
+            <div class="item">
+                <h3>${item.title || 'Untitled'}</h3>
+                ${item.year ? `<p>Year: ${item.year}</p>` : ''}
+                ${item.posterUrl ? `<img src="${item.posterUrl}" alt="${item.title}" style="max-width: 100%;">` : ''}
+                ${item.description ? `<p>${item.description}</p>` : ''}
+            </div>
+        `).join('');
+        
+        resultsEl.innerHTML = html;
     }
 
     async function doSearch() {
@@ -51,8 +61,13 @@
         showLoading();
         try {
             const res = await fetch(`./API/search.php?q=${encodeURIComponent(value)}`);
-            const html = await res.text();
-            renderResults(html);
+            const json = await res.json();
+            
+            if (json.success) {
+                renderResults(json.data);
+            } else {
+                resultsEl.innerHTML = `<div id="no-results">${json.error || 'An error occurred'}</div>`;
+            }
         } catch (err) {
             resultsEl.innerHTML = `<div id="no-results">An error occurred during the search</div>`;
         }
